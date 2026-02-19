@@ -25,6 +25,13 @@ export interface ServiceUsage {
     source?: string;
 }
 
+const DEFAULT_HTTP_TIMEOUT_MS = 8000;
+const parsedHttpTimeoutMs = Number(process.env.USAGE_HTTP_TIMEOUT_MS);
+const HTTP_TIMEOUT_MS =
+    Number.isFinite(parsedHttpTimeoutMs) && parsedHttpTimeoutMs > 0
+        ? parsedHttpTimeoutMs
+        : DEFAULT_HTTP_TIMEOUT_MS;
+
 function formatDurationSeconds(totalSeconds: number): string {
     if (totalSeconds <= 0) return "Now";
 
@@ -50,8 +57,11 @@ function formatResetTime(isoTime: string | null | undefined): string {
 }
 
 async function httpGet(url: string, headers: Record<string, string>): Promise<[number, unknown]> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), HTTP_TIMEOUT_MS);
+
     try {
-        const response = await fetch(url, { headers });
+        const response = await fetch(url, { headers, signal: controller.signal });
         const text = await response.text();
         try {
             return [response.status, JSON.parse(text)];
@@ -59,7 +69,12 @@ async function httpGet(url: string, headers: Record<string, string>): Promise<[n
             return [response.status, text];
         }
     } catch (e) {
-        return [0, String(e)];
+        if (e instanceof Error && e.name === "AbortError") {
+            return [0, `Request timed out after ${HTTP_TIMEOUT_MS}ms`];
+        }
+        return [0, e instanceof Error ? e.message : String(e)];
+    } finally {
+        clearTimeout(timeoutId);
     }
 }
 
@@ -352,7 +367,7 @@ export async function getOpenRouterUsage(): Promise<ServiceUsage> {
         service: "openrouter",
         status: "error",
         error: `HTTP ${status}`,
-        hint: "Check https://openrouter.ai/keys",
+        hint: "Check https://openrouter.ai/credits",
         source: creds.source,
     };
 }
@@ -415,12 +430,30 @@ export async function getOpencodeZenUsage(): Promise<ServiceUsage> {
 }
 
 export async function getAllUsage(): Promise<ServiceUsage[]> {
-    const results = await Promise.all([
-        getClaudeUsage(),
-        getCodexUsage(),
-        getZaiUsage(),
-        getOpenRouterUsage(),
-        getOpencodeZenUsage(),
-    ]);
-    return results;
+    const fetchers = [
+        { service: "claude", run: getClaudeUsage },
+        { service: "codex", run: getCodexUsage },
+        { service: "zai", run: getZaiUsage },
+        { service: "openrouter", run: getOpenRouterUsage },
+        { service: "opencode-zen", run: getOpencodeZenUsage },
+    ];
+
+    const settled = await Promise.allSettled(fetchers.map((fetcher) => fetcher.run()));
+
+    return settled.map((result, idx) => {
+        const fetcher = fetchers[idx];
+
+        if (result.status === "fulfilled") {
+            return result.value;
+        }
+
+        const reason =
+            result.reason instanceof Error ? result.reason.message : String(result.reason);
+        return {
+            service: fetcher ? fetcher.service : "unknown",
+            status: "error",
+            error: "Failed to load usage",
+            hint: reason.slice(0, 200),
+        } satisfies ServiceUsage;
+    });
 }

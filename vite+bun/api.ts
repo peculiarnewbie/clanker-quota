@@ -1,14 +1,28 @@
 import { getAllUsage } from './src/lib/usage';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 6767;
+const IDLE_TIMEOUT_SECONDS = process.env.API_IDLE_TIMEOUT_SECONDS
+  ? parseInt(process.env.API_IDLE_TIMEOUT_SECONDS)
+  : 30;
 
 Bun.serve({
   port: PORT,
+  idleTimeout: IDLE_TIMEOUT_SECONDS,
   routes: {
     "/api/usage": {
       GET: async () => {
-        const usage = await getAllUsage();
-        return Response.json(usage);
+        try {
+          const usage = await getAllUsage();
+          return Response.json(usage);
+        } catch (error) {
+          return Response.json(
+            {
+              error: 'Failed to load usage',
+              hint: error instanceof Error ? error.message : String(error),
+            },
+            { status: 500 }
+          );
+        }
       },
     },
     "/api/usage/claude": {
