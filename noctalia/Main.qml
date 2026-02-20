@@ -24,6 +24,7 @@ Item {
     property string stderrBuffer: ""
     property string cacheStdoutBuffer: ""
     property string cacheStderrBuffer: ""
+    property bool refreshAfterCacheRead: false
 
     function normalizeError(err) {
         if (!err || err.trim() === "") return "Usage fetch failed";
@@ -83,12 +84,20 @@ Item {
         fail(payload?.error || "Usage fetch failed");
     }
 
-    function loadCache() {
+    function loadCache(refreshAfterRead) {
         if (!root.runnerPath) {
             Logger.w("AgentQuota", "Cannot load cache: runner path unavailable");
             return false;
         }
 
+        if (cacheReadProcess.running) {
+            if (refreshAfterRead) {
+                root.refreshAfterCacheRead = true;
+            }
+            return true;
+        }
+
+        root.refreshAfterCacheRead = !!refreshAfterRead;
         root.cacheStdoutBuffer = "";
         root.cacheStderrBuffer = "";
         cacheReadProcess.command = ["bun", root.runnerPath, "--read-cache"];
@@ -170,6 +179,11 @@ Item {
             } else if (exitCode !== 0 || (root.cacheStderrBuffer || "").trim() !== "") {
                 Logger.w("AgentQuota", "Cache read failed: " + (root.cacheStderrBuffer || ("exit code " + exitCode)));
             }
+
+            if (root.refreshAfterCacheRead) {
+                shouldRefresh = true;
+            }
+            root.refreshAfterCacheRead = false;
 
             if (shouldRefresh && !root.loading) {
                 root.refreshUsage(true);

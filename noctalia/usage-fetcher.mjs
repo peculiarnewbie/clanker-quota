@@ -8,10 +8,10 @@ const PLUGIN_SETTINGS_PATH = join(
     ".config",
     "noctalia",
     "plugins",
-    "ai-quota",
+    "agent-quota",
     "settings.json",
 );
-const PLUGIN_ENV_PATH = join(HOME, ".config", "noctalia", "plugins", "ai-quota", ".env");
+const PLUGIN_ENV_PATH = join(HOME, ".config", "noctalia", "plugins", "agent-quota", ".env");
 
 function parseDotEnv(content) {
     const env = {};

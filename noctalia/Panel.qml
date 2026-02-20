@@ -51,11 +51,26 @@ Item {
     function syncFromMain() {
         if (!pluginApi?.mainInstance) return;
         root.usageData = pluginApi.mainInstance.usageData || [];
-        root.loading = pluginApi.mainInstance.loading && root.usageData.length === 0;
+        root.loading = !!pluginApi.mainInstance.loading;
         root.lastUpdated = pluginApi.mainInstance.lastUpdated || null;
-        if (root.usageData.length === 0 && !root.loading) {
-            pluginApi.mainInstance.loadCache();
+    }
+
+    function syncOnPanelOpen() {
+        if (!pluginApi?.mainInstance) return;
+        var main = pluginApi.mainInstance;
+
+        root.syncFromMain();
+
+        if (root.usageData.length === 0) {
+            if (!main.loading) {
+                main.loadCache(true);
+                root.loading = true;
+            }
+            return;
         }
+
+        main.refreshUsage(false);
+        root.loading = !!main.loading;
     }
 
     function formatLastRefresh(lastUpdated) {
@@ -157,11 +172,17 @@ Item {
     }
 
     Component.onCompleted: {
-        root.syncFromMain();
+        root.syncOnPanelOpen();
     }
 
     onPluginApiChanged: {
-        root.syncFromMain();
+        root.syncOnPanelOpen();
+    }
+
+    onVisibleChanged: {
+        if (visible) {
+            root.syncOnPanelOpen();
+        }
     }
 
     Rectangle {
