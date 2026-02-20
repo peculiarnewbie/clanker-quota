@@ -15,6 +15,12 @@
 		"binding": "ASSETS",
 		"directory": "./dist"
 	},
+  "routes": [
+    {
+      "pattern": "agent-quota.peculiarnewbie.com",
+      "custom_domain": true,
+    },
+  ],
 	"observability": {
 		"enabled": true
 	}

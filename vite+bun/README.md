@@ -4,4 +4,4 @@ AI Coding Assistant Usage Dashboard - monitor your Claude, Codex, and Z.AI subsc
 
 runs locally
 
-![../screenshot-vite.png](../screenshot-vite.png)
+![../screenshot-vite.webp](../screenshot-vite.webp)
