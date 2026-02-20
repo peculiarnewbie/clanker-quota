@@ -18,8 +18,6 @@ ColumnLayout {
     property string editOpenRouterKey: pluginApi?.pluginSettings?.OPENROUTER_API_KEY || defaults.OPENROUTER_API_KEY || ""
     property string editOpencodeKey: pluginApi?.pluginSettings?.OPENCODE_API_KEY || defaults.OPENCODE_API_KEY || ""
     property string editZaiKey: pluginApi?.pluginSettings?.ZAI_API_KEY || defaults.ZAI_API_KEY || ""
-    property string editOpenAiKey: pluginApi?.pluginSettings?.OPENAI_API_KEY || defaults.OPENAI_API_KEY || ""
-    property string editClaudeToken: pluginApi?.pluginSettings?.CLAUDE_ACCESS_TOKEN || defaults.CLAUDE_ACCESS_TOKEN || ""
 
     spacing: Style.marginM
 
@@ -76,22 +74,6 @@ ColumnLayout {
         onTextChanged: root.editZaiKey = text
     }
 
-    NTextInput {
-        Layout.fillWidth: true
-        label: "OpenAI API Key (Codex fallback)"
-        placeholderText: "sk-..."
-        text: root.editOpenAiKey
-        onTextChanged: root.editOpenAiKey = text
-    }
-
-    NTextInput {
-        Layout.fillWidth: true
-        label: "Claude Access Token"
-        placeholderText: "Optional token override"
-        text: root.editClaudeToken
-        onTextChanged: root.editClaudeToken = text
-    }
-
     NLabel {
         label: "Tip"
         description: "You can also put these keys in ~/.config/noctalia/plugins/agent-quota/.env"
@@ -106,8 +88,6 @@ ColumnLayout {
         pluginApi.pluginSettings.OPENROUTER_API_KEY = root.editOpenRouterKey.trim();
         pluginApi.pluginSettings.OPENCODE_API_KEY = root.editOpencodeKey.trim();
         pluginApi.pluginSettings.ZAI_API_KEY = root.editZaiKey.trim();
-        pluginApi.pluginSettings.OPENAI_API_KEY = root.editOpenAiKey.trim();
-        pluginApi.pluginSettings.CLAUDE_ACCESS_TOKEN = root.editClaudeToken.trim();
 
         pluginApi.saveSettings();
         Logger.i("AgentQuota", "Settings saved");

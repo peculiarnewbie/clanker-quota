@@ -1,9 +1,7 @@
 {
-  "refreshInterval": 300000,
-  "showPercentInBar": true,
-  "OPENROUTER_API_KEY": "sk-DttR3iETAYwGysjKeBEJagsw15RGMZP99JLHkKriSYHgDDajpzFeXJp14XA4zWkG",
-  "OPENCODE_API_KEY": "",
-  "ZAI_API_KEY": "",
-  "OPENAI_API_KEY": "",
-  "CLAUDE_ACCESS_TOKEN": ""
+    "refreshInterval": 300000,
+    "showPercentInBar": true,
+    "OPENROUTER_API_KEY": "sk-DttR3iETAYwGysjKeBEJagsw15RGMZP99JLHkKriSYHgDDajpzFeXJp14XA4zWkG",
+    "OPENCODE_API_KEY": "",
+    "ZAI_API_KEY": ""
 }

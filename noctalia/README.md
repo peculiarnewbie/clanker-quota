@@ -7,7 +7,6 @@ AI API usage tracking for Noctalia shell. Displays usage limits for Claude, Code
 - **Bar Widget**: Quick glance at your highest API usage percentage
 - **Panel**: Detailed view of all service usage with progress bars and reset times
 - **Settings page**: Configure refresh + API keys directly in Noctalia
-- **Auto-refresh**: Configurable refresh interval (default: 5 minutes)
 
 ## Requirements
 
@@ -15,31 +14,28 @@ AI API usage tracking for Noctalia shell. Displays usage limits for Claude, Code
 
 ## Installation
 
+```bash
+ln -s $(pwd)/noctalia ~/.config/noctalia/plugins/agent-quota
+```
+
 ### Manual Installation
 
 1. Copy the plugin directory to your Noctalia plugins folder:
 
 ```bash
-cp -r noctalia-plugin ~/.config/noctalia/plugins/agent-quota
+cp -r noctalia ~/.config/noctalia/plugins/agent-quota
 ```
 
 2. Restart Noctalia or run with debug mode:
 
 ```bash
-NOCTALIA_DEBUG=1 qs -c noctalia-shell --no-duplicate
+systemctl --user restart noctalia
 ```
 
 3. Enable the plugin in Noctalia Settings > Plugins
 
 4. Add the widget to your bar in Settings > Bar
 
-### Development/Symlink
-
-For development, symlink the plugin directory:
-
-```bash
-ln -s $(pwd)/noctalia-plugin ~/.config/noctalia/plugins/agent-quota
-```
 
 ## Credentials
 
@@ -60,9 +56,6 @@ Example `.env`:
 ```bash
 OPENROUTER_API_KEY=sk-or-v1-...
 OPENCODE_API_KEY=sk-...
-ZAI_API_KEY=...
-OPENAI_API_KEY=sk-...
-CLAUDE_ACCESS_TOKEN=...
 ```
 
 ### Tool-specific auth files
@@ -71,12 +64,10 @@ CLAUDE_ACCESS_TOKEN=...
 - `~/.claude/.credentials.json`
 - `~/.claude/credentials.json`
 - `~/.config/claude/credentials.json`
-- `CLAUDE_ACCESS_TOKEN` environment variable
 
 ### Codex (OpenAI)
 - `~/.codex/auth.json`
 - `~/.config/codex/auth.json`
-- `OPENAI_API_KEY` environment variable
 
 ### Zai
 - `~/.zai/config.json`
@@ -84,20 +75,16 @@ CLAUDE_ACCESS_TOKEN=...
 - Environment variables: `ZAI_API_KEY`, `ZAI_KEY`, `ZHIPU_API_KEY`, `ZHIPUAI_API_KEY`
 
 ### OpenRouter
-- `~/.config/openrouter/config.json`
-- `~/.openrouter/config.json`
 - `OPENROUTER_API_KEY` environment variable
 
 ### Opencode Zen
-- `~/.config/opencode/config.json`
-- `~/.opencode/config.json`
 - `OPENCODE_API_KEY` environment variable
 
 ## Settings
 
 - `refreshInterval`: How often to refresh usage data (default: 300000ms / 5 minutes)
 - `showPercentInBar`: Show percentage in bar widget (default: true)
-- `OPENROUTER_API_KEY`, `OPENCODE_API_KEY`, `ZAI_API_KEY`, `OPENAI_API_KEY`, `CLAUDE_ACCESS_TOKEN`
+- `OPENROUTER_API_KEY`, `OPENCODE_API_KEY`, `ZAI_API_KEY`
 
 ## Usage
 
@@ -114,10 +101,10 @@ CLAUDE_ACCESS_TOKEN=...
 | Service | Quota Type | Metrics |
 |---------|------------|---------|
 | Claude | 5h / 7d windows | Utilization percentage |
-| Codex | Primary / Secondary windows | Rate limit percentage |
-| Zai | Tokens limit | Usage percentage |
+| Codex | 5h / 7d windows | Utilization percentage |
+| Zai | 5h / 7d windows | Utilization percentage |
 | OpenRouter | Credits | Used/remaining balance |
-| Opencode Zen | Balance | Remaining credits |
+| Opencode Zen | Credits | Used/remaining balance |
 
 ## License
 
